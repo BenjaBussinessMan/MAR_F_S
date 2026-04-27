@@ -1,0 +1,28 @@
+# Evitar archivos y directorios innecesarios o sensibles en el contenedor
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Entornos virtuales
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Datos locales - Si no deseas pre-cargar los excel crudos en el contenedor, descomenta la siguiente línea:
+# data/*.xlsx
+
+# Secretos de la base de datos (¡NUNCA los quemes en la imagen Docker!)
+.streamlit/secrets.toml
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Repositorio
+.git/
+.gitignore

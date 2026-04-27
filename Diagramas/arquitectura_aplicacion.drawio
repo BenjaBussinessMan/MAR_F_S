@@ -1,0 +1,643 @@
+<mxfile host="app.diagrams.net" agent="Antigravity" pages="3">
+  <diagram id="arch_overview" name="Arquitectura General">
+    <mxGraphModel dx="1188" dy="566" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1e3a5f;" value="Forecast de Ventas — Industria Automotriz (Ecuador)" vertex="1">
+          <mxGeometry height="40" width="1250" x="200" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_fuentes" parent="1" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;fontColor=#1e3a5f;" value="📥  FUENTES DE DATOS EXTERNAS" vertex="1">
+          <mxGeometry height="220" width="340" x="40" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" parent="zone_fuentes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=10;" value="📊 industria.xlsx&#xa;─────────────────&#xa;Ventas históricas granulares&#xa;(Fecha, Segmento, Marca,&#xa;Modelo, Familia, Provincia,&#xa;Combustible, Origen, HV, Uds)" vertex="1">
+          <mxGeometry height="160" width="150" x="10" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" parent="zone_fuentes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=10;" value="📈 variables.xlsx&#xa;─────────────────&#xa;Drivers macroeconómicos&#xa;(IVA, WTI, EUR/USD, PIB,&#xa;IPC, ICC, Riesgo País,&#xa;Crédito, Tasas, Empleo...)" vertex="1">
+          <mxGeometry height="160" width="150" x="175" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_carga" parent="1" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;fontColor=#1b4332;" value="⚙️  CARGA Y PREPARACIÓN" vertex="1">
+          <mxGeometry height="220" width="340" x="420" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" parent="zone_carga" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=10;" value="load_initial_data.py&#xa;─────────────────&#xa;• Valida columnas y tipos&#xa;• Limpia NaN&#xa;• Puebla sales_granular&#xa;• Puebla historical_drivers&#xa;• Actualiza dim_vehicle_versions" vertex="1">
+          <mxGeometry height="160" width="150" x="10" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" parent="zone_carga" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=10;" value="Subir_mes.py&#xa;─────────────────&#xa;Actualización mensual (CLI)&#xa;• Borra período anterior en BD&#xa;• Re-inserta mes actualizado&#xa;• Verifica SUM(unidades)" vertex="1">
+          <mxGeometry height="160" width="150" x="175" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="📂 ventas_xxx.xlsx&#xa;(actualización mensual)" vertex="1">
+          <mxGeometry height="60" width="160" x="410" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_bd" parent="1" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12;fontColor=#4a235a;" value="🗄️  BASE DE DATOS PostgreSQL (Neon Cloud)" vertex="1">
+          <mxGeometry height="370" width="820" x="800" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" parent="zone_bd" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="sales_granular&#xa;────────────&#xa;fecha_proceso, segmento&#xa;marca, modelo, familia&#xa;provincia, combustible&#xa;origen, hibridación, uds" vertex="1">
+          <mxGeometry height="130" width="130" x="10" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" parent="zone_bd" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="historical_drivers&#xa;────────────&#xa;Fecha (PK)&#xa;20 variables macro&#xa;+ 6 dummies de eventos" vertex="1">
+          <mxGeometry height="130" width="130" x="155" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" parent="zone_bd" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="forecast_driver_scenarios&#xa;────────────&#xa;scenario_name&#xa;variable, fecha&#xa;escenario (N/O/P)&#xa;valor_proyectado" vertex="1">
+          <mxGeometry height="130" width="130" x="300" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" parent="zone_bd" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="forecast_final_projections&#xa;────────────&#xa;projection_name&#xa;segmento_base, modelo_usado&#xa;scenario_name (FK)&#xa;fecha, tipo_escenario&#xa;valor_proyectado" vertex="1">
+          <mxGeometry height="130" width="130" x="445" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="t5" parent="zone_bd" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="forecast_runs&#xa;────────────&#xa;projection_name (FK)&#xa;scope, horizon_months&#xa;best_model&#xa;best_mape / mae / rmse" vertex="1">
+          <mxGeometry height="130" width="120" x="590" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="t6" parent="zone_bd" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="forecast_model_metrics&#xa;────────────&#xa;projection_name (FK)&#xa;model_name&#xa;mape, mae, rmse" vertex="1">
+          <mxGeometry height="130" width="90" x="720" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_auth" parent="zone_bd" style="swimlane;startSize=30;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=12;fontColor=#6d0000;" value="🔐  AUTENTICACIÓN" vertex="1">
+          <mxGeometry height="160" width="260" x="-10" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="auth_file" parent="zone_auth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=10;" value="auth.py&#xa;─────────────────&#xa;• Validación @corpmaresa.com.ec&#xa;• bcrypt (hash + verificación)&#xa;• Registro (pendiente aprobación)&#xa;• Login (aprobado + admin check)" vertex="1">
+          <mxGeometry height="110" width="240" x="10" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="t7" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;" value="users&#xa;────&#xa;email, password_hash&#xa;is_approved, is_admin" vertex="1">
+          <mxGeometry height="90" width="100" x="1100" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="t8" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="dim_vehicle_versions&#xa;────&#xa;marca, familia, modelo&#xa;segmento, combustible&#xa;origen, hibridación" vertex="1">
+          <mxGeometry height="100" width="120" x="1220" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="t9" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;" value="vehicle_main_competitor&#xa;────&#xa;own_brand, own_familia&#xa;competitor_brand&#xa;competitor_modelo&#xa;competition_type" vertex="1">
+          <mxGeometry height="110" width="130" x="1360" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_engine" parent="1" style="swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;fontColor=#654e00;" value="🤖  MOTOR DE FORECAST  (forecasting_engine.py)" vertex="1">
+          <mxGeometry height="380" width="730" x="40" y="571" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_feat" parent="zone_engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontSize=10;" value="_create_features()&#xa;─────────────────&#xa;• Var. temporales (month, quarter)&#xa;• Lags de drivers (lag 1,2,3,12)&#xa;• Lags autoregresivos de ventas&#xa;  (lag-1, lag-12)&#xa;• Rolling mean 3m / 6m&#xa;• Rolling std 6m" vertex="1">
+          <mxGeometry height="160" width="170" x="10" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_cv" parent="zone_engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontSize=10;" value="Walk-Forward CV&#xa;─────────────────&#xa;• 5 folds × 4 meses test&#xa;• Expanding window&#xa;• Excluye fechas shock:&#xa;  COVID, Paros, Cambio IVA&#xa;• Calcula MAPE/MAE/RMSE&#xa;  solo sobre datos limpios" vertex="1">
+          <mxGeometry height="160" width="160" x="195" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_xgb" parent="zone_engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9dbc8;strokeColor=#d6b656;fontSize=10;" value="XGBoost&#xa;────&#xa;n_estimators=500&#xa;lr=0.01&#xa;+ features extendidas" vertex="1">
+          <mxGeometry height="100" width="130" x="10" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_rf" parent="zone_engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9dbc8;strokeColor=#d6b656;fontSize=10;" value="RandomForest&#xa;────&#xa;n_estimators=100&#xa;+ features extendidas" vertex="1">
+          <mxGeometry height="100" width="130" x="155" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_sar" parent="zone_engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9dbc8;strokeColor=#d6b656;fontSize=10;" value="SARIMAX&#xa;────&#xa;(1,1,1)(1,1,0,12)&#xa;+ drivers como&#xa;  exógenas" vertex="1">
+          <mxGeometry height="100" width="130" x="300" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_prop" parent="zone_engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9dbc8;strokeColor=#d6b656;fontSize=10;" value="Prophet&#xa;────&#xa;Aditivo&#xa;+ drivers como&#xa;  regresores" vertex="1">
+          <mxGeometry height="100" width="130" x="445" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_final" parent="zone_engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="run_final_forecast()&#xa;─────────────────&#xa;• Reentrena modelo ganador&#xa;  con 100% histórico&#xa;• Pronóstico dinámico (lags)&#xa;• 3 escenarios: N/O/P&#xa;• IC = ±1.96 × RMSE" vertex="1">
+          <mxGeometry height="160" width="130" x="590" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_desg" parent="zone_engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" value="calculate_desagregado()&#xa;─────────────────&#xa;Desagregación Top-Down&#xa;• Share histórico × segmento&#xa;• Share últimos N meses&#xa;  × modelo/provincia&#xa;• Cross-join + redondeo sin pérdida" vertex="1">
+          <mxGeometry height="130" width="130" x="590" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="e_feat_cv" edge="1" parent="zone_engine" source="eng_feat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;" target="eng_cv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cv_xgb" edge="1" parent="zone_engine" source="eng_cv" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;" target="eng_xgb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cv_rf" edge="1" parent="zone_engine" source="eng_cv" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;" target="eng_rf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cv_sar" edge="1" parent="zone_engine" source="eng_cv" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;" target="eng_sar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cv_prop" edge="1" parent="zone_engine" source="eng_cv" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;" target="eng_prop">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_xgb_final" edge="1" parent="zone_engine" source="eng_xgb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;" target="eng_final">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_final_desg" edge="1" parent="zone_engine" source="eng_final" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#6c8ebf;" target="eng_desg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_app" parent="1" style="swimlane;startSize=30;fillColor=#f0f4ff;strokeColor=#4a6fa5;fontStyle=1;fontSize=12;fontColor=#1e3a5f;" value="🖥️  APLICACIÓN STREAMLIT" vertex="1">
+          <mxGeometry height="380" width="830" x="800" y="573" as="geometry" />
+        </mxCell>
+        <mxCell id="app_entry" parent="zone_app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#4a6fa5;fontSize=10;fontStyle=1;" value="app.py&#xa;(Punto de Entrada)&#xa;─────────────────&#xa;• Login form&#xa;• Dashboard principal&#xa;• Tab: Visión General&#xa;• Tab: Detalle por Modelo" vertex="1">
+          <mxGeometry height="160" width="160" x="10" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sidebar" parent="zone_app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#4a6fa5;fontSize=10;" value="sidebar.py&#xa;─────────────────&#xa;Menú de navegación lateral" vertex="1">
+          <mxGeometry height="60" width="160" x="10" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" parent="zone_app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f4ff;strokeColor=#4a6fa5;fontSize=9;" value="1_Forecast_App.py&#xa;─────────────────&#xa;Tab 1: Exploración histórica&#xa;  KPIs, gráficos, STL, ACF/PACF&#xa;Tab 2: Escenarios de Drivers&#xa;  Correlación + Proyección&#xa;  SARIMAX/AutoARIMA&#xa;  Ajuste manual (sliders)&#xa;Tab 3: Pronóstico de Ventas&#xa;  Competencia modelos&#xa;  Forecast final + 3 escenarios" vertex="1">
+          <mxGeometry height="230" width="170" x="190" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" parent="zone_app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f4ff;strokeColor=#4a6fa5;fontSize=9;" value="2_Main_Competitors.py&#xa;─────────────────&#xa;• Registro de competidores&#xa;  por modelo&#xa;• Consulta competencia&#xa;  directa / indirecta" vertex="1">
+          <mxGeometry height="120" width="155" x="375" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" parent="zone_app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8d7da;strokeColor=#b85450;fontSize=9;" value="3_Register.py&#xa;─────────────────&#xa;• Auto-registro usuarios&#xa;• Pendiente de aprobación admin" vertex="1">
+          <mxGeometry height="100" width="155" x="375" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" parent="zone_app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8d7da;strokeColor=#b85450;fontSize=9;" value="4_Admin.py&#xa;─────────────────&#xa;• Aprobación de usuarios&#xa;• Gestión de administradores" vertex="1">
+          <mxGeometry height="80" width="155" x="375" y="285" as="geometry" />
+        </mxCell>
+        <mxCell id="word_gen" parent="zone_app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" value="generar_word.py&#xa;─────────────────&#xa;Exportación de reportes&#xa;Word (.docx)&#xa;con ficha técnica&#xa;y resultados" vertex="1">
+          <mxGeometry height="140" width="140" x="545" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="zone_out" parent="1" style="swimlane;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=12;fontColor=#6d3c00;" value="📤  SALIDAS" vertex="1">
+          <mxGeometry height="120" width="1590" x="40" y="987" as="geometry" />
+        </mxCell>
+        <mxCell id="out1" parent="zone_out" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=10;" value="📈 Gráficos interactivos&#xa;Serie real + 3 escenarios" vertex="1">
+          <mxGeometry height="60" width="200" x="10" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="out2" parent="zone_out" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=10;" value="📊 Tabla desagregada&#xa;Seg / Marca / Modelo / Provincia" vertex="1">
+          <mxGeometry height="60" width="200" x="225" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="out3" parent="zone_out" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=10;" value="📑 Ficha Técnica&#xa;Drivers, métricas, modelo ganador" vertex="1">
+          <mxGeometry height="60" width="200" x="440" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="out4" parent="zone_out" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=10;" value="📅 Crecimiento Anual&#xa;Real + proyección + estacionalidad" vertex="1">
+          <mxGeometry height="60" width="200" x="655" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="out5" parent="zone_out" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=10;" value="💾 Exportación CSV&#xa;Detalle completo por filtros" vertex="1">
+          <mxGeometry height="60" width="200" x="870" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="out6" parent="zone_out" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=10;" value="📄 Reporte Word (.docx)&#xa;Informe completo S&amp;OP" vertex="1">
+          <mxGeometry height="60" width="200" x="1085" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="out7" parent="zone_out" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=10;" value="🏆 Leaderboard de Modelos&#xa;Backtest + residuos del ganador" vertex="1">
+          <mxGeometry height="60" width="270" x="1300" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="f1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;" target="c1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="f2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;" target="c1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_f3_c2" edge="1" parent="1" source="f3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;strokeColor=#d6b656;" target="c2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;" target="t1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;" target="t2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_c1_t8" edge="1" parent="1" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;" target="t8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_c2_t1" edge="1" parent="1" source="c2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;" target="t1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_auth_users" edge="1" parent="1" source="zone_auth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;endArrow=block;startArrow=block;startFill=0;endFill=0;" target="t7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_t1_eng" edge="1" parent="1" source="t1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;" target="eng_feat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_t2_eng" edge="1" parent="1" source="t2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;" target="eng_feat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_t3_eng" edge="1" parent="1" source="t3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9673a6;" target="eng_final">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_engine_t3" edge="1" parent="1" source="eng_final" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;dashed=1;" target="t3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_engine_t4" edge="1" parent="1" source="eng_final" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;dashed=1;" target="t4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_engine_t5" edge="1" parent="1" source="eng_cv" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;dashed=1;" target="t5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_engine_t6" edge="1" parent="1" source="eng_cv" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d6b656;dashed=1;" target="t6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_t4_app" edge="1" parent="1" source="t4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#4a6fa5;" target="app_entry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_t4_p1" edge="1" parent="1" source="t4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#4a6fa5;" target="p1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_out1" edge="1" parent="1" source="app_entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d79b00;" target="out1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_p1_out2" edge="1" parent="1" source="p1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#d79b00;" target="out2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_word_out6" edge="1" parent="1" source="word_gen" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#82b366;" target="out6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_auth_app" edge="1" parent="1" source="zone_auth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#b85450;" target="app_entry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="forecast_flow" name="Flujo Forecast">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title2" value="Flujo Completo del Proceso de Forecast — 1_Forecast_App.py" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#1e3a5f;" vertex="1" parent="1">
+          <mxGeometry x="50" y="20" width="1060" height="35" as="geometry" />
+        </mxCell>
+        <!-- TAB 1 -->
+        <mxCell id="tab1_bg" value="📊 PESTAÑA 1 — Verificación de Datos Históricos" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;fontColor=#1e3a5f;" vertex="1" parent="1">
+          <mxGeometry x="50" y="70" width="320" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_filters" value="Filtros interactivos&#xa;─────────────&#xa;Segmento, Marca, Modelo&#xa;Provincia, Combustible, Origen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="tab1_bg">
+          <mxGeometry x="10" y="40" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_sql" value="Consulta SQL dinámica&#xa;→ sales_granular" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="tab1_bg">
+          <mxGeometry x="10" y="130" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_kpis" value="KPIs&#xa;─────────────&#xa;Total Ventas · Promedio L12M&#xa;Mejor Mes · Desv.Est. L12M&#xa;Crecimiento YTD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="tab1_bg">
+          <mxGeometry x="10" y="200" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_charts" value="Gráficos Exploratorios&#xa;─────────────&#xa;• Total + Segmentos (barras + línea)&#xa;• Pie Chart YTD&#xa;• Market Share evolutivo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="tab1_bg">
+          <mxGeometry x="10" y="300" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_tech" value="Análisis Técnico&#xa;─────────────&#xa;• Estacionalidad (Boxplot)&#xa;• Crecimiento YoY / MoM&#xa;• Descomposición STL&#xa;• ACF / PACF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="tab1_bg">
+          <mxGeometry x="10" y="410" width="300" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_csv" value="💾 Exportación CSV" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="tab1_bg">
+          <mxGeometry x="10" y="530" width="300" height="40" as="geometry" />
+        </mxCell>
+        <!-- TAB 2 -->
+        <mxCell id="tab2_bg" value="⚙️ PESTAÑA 2 — Paso 1: Escenarios de Drivers" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;fontColor=#1b4332;" vertex="1" parent="1">
+          <mxGeometry x="400" y="70" width="330" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_config" value="Configuración&#xa;─────────────&#xa;• Horizonte (6-36 meses)&#xa;• Segmento base para correlación" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=10;" vertex="1" parent="tab2_bg">
+          <mxGeometry x="10" y="40" width="310" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_corr" value="Cálculo de Correlación&#xa;─────────────&#xa;• Pearson en nivel&#xa;• Correlación YoY (crecimiento)&#xa;• Score combinado (prioriza YoY)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=10;" vertex="1" parent="tab2_bg">
+          <mxGeometry x="10" y="130" width="310" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_sel" value="Selección de Drivers&#xa;(tabla editable con checkbox)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=10;" vertex="1" parent="tab2_bg">
+          <mxGeometry x="10" y="240" width="310" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_proj" value="project_future_drivers()&#xa;─────────────&#xa;• AutoARIMA (preferido)&#xa;• SARIMAX(1,1,1)(1,1,0,12)&#xa;• Fallback: último valor&#xa;Genera 3 escenarios:&#xa;Normal / Optimista / Pesimista" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=10;" vertex="1" parent="tab2_bg">
+          <mxGeometry x="10" y="320" width="310" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_manual" value="Ajuste Manual (Arte)&#xa;─────────────&#xa;• Asistente YoY %&#xa;• Sliders de banda&#xa;• Editor de tabla directo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=10;" vertex="1" parent="tab2_bg">
+          <mxGeometry x="10" y="460" width="310" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_save" value="💾 Guardado → forecast_driver_scenarios" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="tab2_bg">
+          <mxGeometry x="10" y="565" width="310" height="25" as="geometry" />
+        </mxCell>
+        <!-- TAB 3 -->
+        <mxCell id="tab3_bg" value="📈 PESTAÑA 3 — Paso 2: Pronóstico de Ventas" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12;fontColor=#4a235a;" vertex="1" parent="1">
+          <mxGeometry x="760" y="70" width="340" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_sel" value="Selección de escenario de drivers guardado" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="tab3_bg">
+          <mxGeometry x="10" y="40" width="320" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_comp" value="run_model_competition()&#xa;─────────────&#xa;• Walk-Forward CV (5 folds × 4 meses)&#xa;• Excluye: COVID, Paros, Cambio IVA&#xa;• Modelos: XGBoost · RF · SARIMAX · Prophet&#xa;• Ganador = menor MAPE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="tab3_bg">
+          <mxGeometry x="10" y="110" width="320" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_final" value="run_final_forecast()&#xa;─────────────&#xa;• Reentrena ganador con 100% hist.&#xa;• Pronóstico dinámico (lags t-1, t-12,&#xa;  rolling 3m, 6m)&#xa;• 3 escenarios (N/O/P)&#xa;• IC = ±1.96 × RMSE_backtest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="tab3_bg">
+          <mxGeometry x="10" y="250" width="320" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_viz" value="Visualización Interactiva&#xa;─────────────&#xa;• Serie histórica + proyección&#xa;• Backtest (real vs. predicho)&#xa;• Residuos del modelo ganador&#xa;• Leaderboard de métricas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="tab3_bg">
+          <mxGeometry x="10" y="400" width="320" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_save" value="💾 Guarda: forecast_final_projections · forecast_runs · forecast_model_metrics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="tab3_bg">
+          <mxGeometry x="10" y="530" width="320" height="50" as="geometry" />
+        </mxCell>
+        <!-- FLECHAS ENTRE TABS -->
+        <mxCell id="ef_t1_t2" value="Datos base" style="edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#1b4332;fontStyle=1;fontSize=9;" edge="1" source="tab1_bg" target="tab2_bg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ef_t2_t3" value="Escenarios guardados" style="edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#4a235a;fontStyle=1;fontSize=9;" edge="1" source="tab2_bg" target="tab3_bg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="db_model" name="Modelo de BD">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title3" value="Modelo de Base de Datos — PostgreSQL (Neon Cloud)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#1e3a5f;" vertex="1" parent="1">
+          <mxGeometry x="50" y="15" width="1050" height="35" as="geometry" />
+        </mxCell>
+        <!-- sales_granular -->
+        <mxCell id="db_sg" value="sales_granular" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="200" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r1" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=1;" vertex="1" parent="db_sg">
+          <mxGeometry y="30" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r1_l" value="PK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=1;overflow=hidden;" vertex="1" parent="db_sg_r1">
+          <mxGeometry width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r1_r" value="id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="db_sg_r1">
+          <mxGeometry x="40" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r2" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="db_sg">
+          <mxGeometry y="60" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_sg_r2">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="fecha_proceso (date)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="db_sg_r2">
+          <mxGeometry x="40" width="160" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r3" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="db_sg">
+          <mxGeometry y="85" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_sg_r3">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="segmento (varchar)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="db_sg_r3">
+          <mxGeometry x="40" width="160" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r4" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="db_sg">
+          <mxGeometry y="110" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_sg_r4">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="marca / modelo / familia" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="db_sg_r4">
+          <mxGeometry x="40" width="160" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r5" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="db_sg">
+          <mxGeometry y="135" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_sg_r5">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="provincia (varchar)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="db_sg_r5">
+          <mxGeometry x="40" width="160" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r6" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="db_sg">
+          <mxGeometry y="160" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_sg_r6">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="tipo_combustible / origen" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="db_sg_r6">
+          <mxGeometry x="40" width="160" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r7" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="db_sg">
+          <mxGeometry y="185" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_sg_r7">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="tipo_hibridacion (varchar)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="db_sg_r7">
+          <mxGeometry x="40" width="160" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="db_sg_r8" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;top=0;left=0;right=0;bottom=0;" vertex="1" parent="db_sg">
+          <mxGeometry y="210" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_sg_r8">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="unidades (int)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;overflow=hidden;" vertex="1" parent="db_sg_r8">
+          <mxGeometry x="40" width="160" height="25" as="geometry" />
+        </mxCell>
+        <!-- forecast_driver_scenarios -->
+        <mxCell id="db_fds" value="forecast_driver_scenarios" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="290" y="70" width="230" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fds">
+          <mxGeometry y="30" width="230" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="PK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=1;" vertex="1" parent="db_fds">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fds">
+          <mxGeometry x="40" width="190" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fds">
+          <mxGeometry y="58" width="230" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fds">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="scenario_name (varchar)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fds">
+          <mxGeometry x="40" width="190" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fds">
+          <mxGeometry y="86" width="230" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fds">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="variable / fecha / escenario" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fds">
+          <mxGeometry x="40" width="190" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fds">
+          <mxGeometry y="114" width="230" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fds">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="valor_proyectado (float)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fds">
+          <mxGeometry x="40" width="190" height="28" as="geometry" />
+        </mxCell>
+        <!-- forecast_final_projections -->
+        <mxCell id="db_ffp" value="forecast_final_projections" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="280" width="230" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_ffp">
+          <mxGeometry y="30" width="230" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="PK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=1;" vertex="1" parent="db_ffp">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp">
+          <mxGeometry x="40" width="190" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="db_ffp_pname" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_ffp">
+          <mxGeometry y="55" width="230" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp_pname">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="projection_name (varchar)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp_pname">
+          <mxGeometry x="40" width="190" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_ffp">
+          <mxGeometry y="80" width="230" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="FK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=2;" vertex="1" parent="db_ffp">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="scenario_name (FK)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp">
+          <mxGeometry x="40" width="190" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_ffp">
+          <mxGeometry y="105" width="230" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="segmento_base / modelo_usado" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp">
+          <mxGeometry x="40" width="190" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_ffp">
+          <mxGeometry y="130" width="230" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="fecha / tipo_escenario" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp">
+          <mxGeometry x="40" width="190" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_ffp">
+          <mxGeometry y="155" width="230" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="valor_proyectado / created_at" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_ffp">
+          <mxGeometry x="40" width="190" height="25" as="geometry" />
+        </mxCell>
+        <!-- forecast_runs -->
+        <mxCell id="db_fr" value="forecast_runs" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="580" y="280" width="220" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fr">
+          <mxGeometry y="30" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="PK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=1;" vertex="1" parent="db_fr">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry x="40" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fr">
+          <mxGeometry y="55" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="FK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=2;" vertex="1" parent="db_fr">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="projection_name (FK)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry x="40" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fr">
+          <mxGeometry y="80" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="scope / horizon_months" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry x="40" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fr">
+          <mxGeometry y="105" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="best_model (varchar)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry x="40" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fr">
+          <mxGeometry y="130" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="best_mape / mae / rmse" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry x="40" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fr">
+          <mxGeometry y="155" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry width="40" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="train_start / train_end / test_end" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fr">
+          <mxGeometry x="40" width="180" height="25" as="geometry" />
+        </mxCell>
+        <!-- forecast_model_metrics -->
+        <mxCell id="db_fmm" value="forecast_model_metrics" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="580" y="70" width="220" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fmm">
+          <mxGeometry y="30" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="PK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=1;" vertex="1" parent="db_fmm">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fmm">
+          <mxGeometry x="40" width="180" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fmm">
+          <mxGeometry y="58" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="FK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=2;" vertex="1" parent="db_fmm">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="projection_name (FK)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fmm">
+          <mxGeometry x="40" width="180" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fmm">
+          <mxGeometry y="86" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fmm">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="model_name (varchar)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fmm">
+          <mxGeometry x="40" width="180" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_fmm">
+          <mxGeometry y="114" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fmm">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="mape / mae / rmse (float)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_fmm">
+          <mxGeometry x="40" width="180" height="28" as="geometry" />
+        </mxCell>
+        <!-- users -->
+        <mxCell id="db_u" value="users" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#ffe6cc;strokeColor=#d6a300;" vertex="1" parent="1">
+          <mxGeometry x="860" y="70" width="200" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_u">
+          <mxGeometry y="30" width="200" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="PK" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=1;" vertex="1" parent="db_u">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="id" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_u">
+          <mxGeometry x="40" width="160" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_u">
+          <mxGeometry y="58" width="200" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_u">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="email (varchar)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_u">
+          <mxGeometry x="40" width="160" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_u">
+          <mxGeometry y="86" width="200" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_u">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="password_hash (varchar)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_u">
+          <mxGeometry x="40" width="160" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="db_u">
+          <mxGeometry y="114" width="200" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_u">
+          <mxGeometry width="40" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="" value="is_approved / is_admin (bool)" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" vertex="1" parent="db_u">
+          <mxGeometry x="40" width="160" height="28" as="geometry" />
+        </mxCell>
+        <!-- RELACIONES entre tablas BD -->
+        <mxCell id="rel1" value="1" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmanyToOne;startArrow=ERmanyToOne;rounded=0;strokeColor=#9673a6;" edge="1" source="db_ffp" target="db_fds" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel2" value="1..N" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmanyToOne;startArrow=ERmanyToOne;rounded=0;strokeColor=#d6b656;" edge="1" source="db_fr" target="db_ffp" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel3" value="1..N" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmanyToOne;startArrow=ERmanyToOne;rounded=0;strokeColor=#b85450;" edge="1" source="db_fmm" target="db_ffp" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
